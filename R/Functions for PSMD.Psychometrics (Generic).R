@@ -125,12 +125,12 @@ theme_psmd <- function(){
 # DZ notes to self:
 # The argument character.only = TRUE works for library(), but possibly not for install.packages
 # So although PackageName in Fn.Update() could be changed to install and attach any package, it might hit errors at the install.package() phase.
-# PackageName currently defaults to PSMD.Psychometrics though, so unless specified otherwise, Fn.Update habdles PSMD.Psychometrics
+# PackageName currently defaults to psychometricsPSMD though, so unless specified otherwise, Fn.Update handles psychometricsPSMD
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-fnUpdate<-function(PackageName="PSMD.Psychometrics", Reinstall=FALSE){
+fnUpdate<-function(PackageName="psychometricsPSMD", Reinstall=FALSE){
   
   # Defaults to check for PSMD.Psychometrics but can be usesd for other pakages by changing the PackageName argument
   
@@ -172,8 +172,8 @@ fnUpdate<-function(PackageName="PSMD.Psychometrics", Reinstall=FALSE){
     print(paste("Package already attached -- ",PackageName,sep=""))}
   
   if(Package.Installed=="No" & Package.Attached=="No"){
-    if(PackageName=="PSMD.Psychometrics"){
-      install_github("PSMD-Psychometrics/PSMD.Psychometrics", force=TRUE)
+    if(PackageName=="psychometricsPSMD"){
+      install_github("PSMD-Psychometrics/psychometricsPSMD", force=TRUE)
       print(paste("Package installed -- ",PackageName,sep=""))
       }else{
         install.packages(PackageName, character.only = TRUE)
@@ -190,11 +190,11 @@ fnUpdate<-function(PackageName="PSMD.Psychometrics", Reinstall=FALSE){
   # Force reinstall if Reinstall==TRUE
 
   if(Reinstall==TRUE){
-    if(PackageName=="PSMD.Psychometrics"){detach("package:PSMD.Psychometrics", unload=TRUE)}
+    if(PackageName=="psychometricsPSMD"){detach("package:psychometricsPSMD", unload=TRUE)}
     remove.packages(PackageName)
     print(paste("Forcing package reinstall -- ",PackageName,sep=""))
-    if(PackageName=="PSMD.Psychometrics"){
-      install_github("PSMD-Psychometrics/PSMD.Psychometrics", force=TRUE)
+    if(PackageName=="psychometricsPSMD"){
+      install_github("PSMD-Psychometrics/psychometricsPSMD", force=TRUE)
       print(paste("Package installed -- ",PackageName,sep=""))
       }else{
         install.packages(PackageName, character.only = TRUE)
