@@ -17,6 +17,7 @@
 # RStudio files
 psychometricsPSMD.Rproj
 .Rproj.user/
+.Rbuildignore
 
 # produced vignettes
 vignettes/*.html
