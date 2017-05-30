@@ -1,5 +1,5 @@
 
-Package: PSMD.Psychometrics
+Package: psychometricsPSMD
 Type: Package
 Title: A collection of functions used by and useful to the PSMD Psychometrics Team
 Version: 0.1.1
