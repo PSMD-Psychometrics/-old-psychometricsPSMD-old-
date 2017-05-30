@@ -1,0 +1,719 @@
+
+# Script containing all functions for {PSMD.Psychometrics}
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#### Notes ####
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# 
+#
+#
+#
+#
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#### fnBarChart - last updated 250417 ####
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# Function designed to plot grade and response frequencies, counts, and percentages.
+
+# Inputs
+#
+# Data      Single vector containing all data points; e.g. c("U", "S", "S", "B", "E") or Data.All$Grades
+#           Can be of any data type.
+#           Can handle any combination of abbreviations and/or full-text labels
+#           (Within reason; add any unusual ones to Data.Scheme)
+#
+# Type      Character string, specifying whether the plot should display is "Frequency" or "Percentage"
+#           Can handle some abbreviations and variations of these two terms.
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# TO DEVELOP
+#
+# DNAs currently treated as unknown value so scheme isn't determined.
+#
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+fnBarChart<-function(Data="MinaHarker", Type="LucyWestenra", Force.Scheme="Renfield"){
+  
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ##### Check Inputs - Specified and Correct Format ####
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+  
+  # Test if Data and/or Type are missing and display warnings
+  # These warnings are predicated on checking for Data in the first variable slot and Type in the second; so if you put Type but no Data, the warning will be 'No Type' as it assumes the first (and only) variable specified is Data.
+  
+  # Check if Data or Type arguments are factors, and un-factorise if yes.
+  
+  if(is.factor(Data)==TRUE){Data<-as.character(Data)}
+  if(is.factor(Type)==TRUE){Type<-as.character(Type)}
+  
+  # Correct any Type typos or variations (in single-item Type arguments; otherwise leave for error chekcs that follow)
+  # Single-item factors vectors, lists, and dataframes are accepted; multiple-item vectors, lists, and dataframes are skipped and checked later (Type-gormat error message generated)
+  
+  if(is.vector(Type)==TRUE){
+    if(length(Type)==1){
+        Table.TypeRefs<-data.frame(Type=c("Percentage","percentage","percent","Percent","perc","Perc","p","Percentages","percentages","percents","Percents","percs","Percs","ps","Frequency","frequency","freq","Freq","F","f","Frequencies","frequencies","freqs","Freqs","Fs","fs"),Replacement=c(rep("Percentage",14),rep("Frequency",12)))
+  if(length(Table.TypeRefs$Type[Table.TypeRefs$Type==Type])>=1){Type<-Table.TypeRefs$Replacement[Table.TypeRefs$Type==Type]}
+  if(is.factor(Type)==TRUE){Type<-as.character(Type)}
+      }}
+  
+  # Tabulate inputs and proprties to create reference table for conditional checks.
+  # Defaults to neither Data not Type being specified and both being the wrong format.
+  
+  Table.Checks<-data.frame(Required=c("Data","Type"), Specified=c("No","No"), Format=c("Incorrect","Incorrect"))
+  for(i in colnames(Table.Checks)){Table.Checks[[i]]<-as.character(Table.Checks[[i]])} # to make sure Data.Scheme$Replacement is not factorised (if factorised, replacement of values is thrown by level numbers being used in some versions/settings of R)
+  
+  # Check if Data has been specified (nested conditionals to handle checking dataframes and lists)
+  
+  if(exists("Data")==TRUE & is.vector(Data)==FALSE){
+    if(Data[1,1]=="MinaHarker"){Table.Checks$Specified[1]<-"No"}
+    if(Data[1,1]!="MinaHarker"){Table.Checks$Specified[1]<-"Yes"}}
+  if(exists("Data")==TRUE & is.vector(Data)==TRUE){if(Data[1]!="MinaHarker"){Table.Checks$Specified[1]<-"Yes"}}
+  
+  # Check if Data is in the correct format (unfactorised single vector)
+  
+  if(Table.Checks$Specified[1]=="Yes"){
+    if(is.list(Data)==TRUE & Data[[1]][1]!="MinaHarker"){Table.Checks$Format[1]<-"Incorrect"}
+    if(is.list(Data)==FALSE & is.vector(Data)==TRUE){Table.Checks$Format[1]<-"Correct"}}
+  
+  # Check if Type is specified (nested conditionals to handle checking dataframes and lists)
+  
+  if(exists("Type")==TRUE & is.vector(Type)==FALSE){
+    if(Type[1,1]=="LucyWestenra"){Table.Checks$Specified[2]<-"No"}
+    if(Type[1,1]!="LucyWestenra"){Table.Checks$Specified[2]<-"Yes"}}
+  if(exists("Type")==TRUE & is.vector(Type)==TRUE){if(Type[1]!="LucyWestenra"){Table.Checks$Specified[2]<-"Yes"}}
+  
+  # Check if Type is in the correct format and one of the valid options
+  
+  if(Table.Checks$Specified[2]=="Yes"){
+    if(is.vector(Type)==TRUE &  length(Type)==1){
+      if(Type[1]!="LucyWestenra"){
+        if(Type[1]=="Percentage" | Type[1]=="Frequency"){
+          Table.Checks$Format[2]<-"Correct"}}}}
+  
+  # Display appropriate warnings re. required inputs
+  
+  Checks.OK<-"Yes" # Conditional switch that is altered to toggle additional warning messages and completion of function
+  
+  if(length(Table.Checks$Specified[Table.Checks$Specified=="No"])==1){
+    warning(paste("Function aborted. Argument missing - ",toString(Table.Checks$Require[Table.Checks$Specified=="No"]),sep=""))
+    Checks.OK<-"No"}
+  if(length(Table.Checks$Specified[Table.Checks$Specified=="No"])==2){
+    warning(paste("Function Aborted. Arguments missing - ",toString(Table.Checks$Require[Table.Checks$Specified=="No"]),sep=""))
+    Checks.OK<-"No"}
+  
+  if(Checks.OK=="Yes"){
+    if(length(Table.Checks$Format[Table.Checks$Format=="Incorrect"])==1){
+      warning(paste("Function aborted. Input in incorrect format - ",toString(Table.Checks$Require[Table.Checks$Format=="Incorrect"]),". Please see ?Fn.BarChart for required format.",sep=""))
+      Checks.OK<-"No"}
+    if(length(Table.Checks$Format[Table.Checks$Format=="Incorrect"])==2){
+      warning(paste("Function Aborted. Inputs in incorrect format - ",toString(Table.Checks$Require[Table.Checks$Format=="Incorrect"]),". Please see ?Fn.BarChart for required format.",sep=""))
+      Checks.OK<-"No"}}
+  
+  # Check to see if inputs and formats are ok.
+  
+  if(length(Table.Checks$Specified[Table.Checks$Specified=="Yes"])<2 | length(Table.Checks$Format[Table.Checks$Format=="Correct"])<2){
+    Checks.OK<-"No"
+    # do nothng if inputs incorrect or missing; errors will have been displayed by preceeding lines
+  }else{
+    Checks.OK<-"Yes"} # If all inputs ok, set Checks.OK to "Yes" and continue.
+  
+  # From here, each section is within a Checks.OK=="Yes" conditional, and where further checks are carried out, Checks.OK status is changed if errors are encountered
+  
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  # Create single-variable data frame
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  if(Checks.OK=="Yes"){
+    Data.Plot<-data.frame(variable=as.character(Data))
+    Data.Plot$variable<-as.character(Data.Plot$variable)} # to make sure Data.Plot$variable is not factorised (if factorised, replacement of values is thrown by level numbers being used in some versions of R)
+  
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  # Determine Scheme; whether data is U/B/S/E, C/NI/NC, or C/DK/I
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  if(Checks.OK=="Yes"){
+    
+    # Create dataframe of all possible grade/response options and which scheme they're from, add freqs
+    
+    Data.Scheme<-data.frame(
+      Value=c("U","B","S","E","Unsatisfactory","Borderline","Satisfactory","Excellent","C","C","I","DK","Correct","Incorrect","DontKnow","Dont Know", "Don't Know","NI","NC","Competent","Needs Improvement","Not Competent", "NeedsImprovement","NotCompetent","u","b","s","e","unsatisfactory", "borderline", "satisfactory", "excellent","dk","correct","incorrect","dontknow","dont know","don't know","ni","nc","competent","needs improvement","not competent","needsimprovement","notcompetent","Pass","Fail","pass","fail","p","f","P","F","1","0","-0.25","Male","Female","male","female","M","F","m","f","c","c","White","white","Asian","asian","Other","other","Black","black","Arab","arab","No known disability","Specific learning difficulty","Other disability","No Known Disability","Specific Learning Difficulty","Other Disability","no known disability","specific learning difficulty","other disability","SLD","sld","Other","other","none","None","OTHER","PASS","FAIL","E","e","Excellent","excellent","i"),
+      Scheme=c("UBSE","UBSE","UBSE","UBSE","UBSE","UBSE","UBSE","UBSE","CIDK","CNINC","CIDK","CIDK","CIDK","CIDK","CIDK","CIDK", "CIDK","CNINC","CNINC","CNINC","CNINC","CNINC", "CNINC","CNINC","UBSE","UBSE","UBSE","UBSE","UBSE","UBSE","UBSE","UBSE","CIDK","CIDK","CIDK","CIDK","CIDK","CIDK","CNINC","CNINC","CNINC","CNINC","CNINC","CNINC","CNINC","PFE","PFE","PFE","PFE","PFE","PFE","PFE","PFE","CIDK","CIDK","CIDK","Gender","Gender","Gender","Gender","Gender","Gender","Gender","Gender","CIDK","CNINC","Ethnicity","Ethnicity","Ethnicity","Ethnicity","Ethnicity","Ethnicity","Ethnicity","Ethnicity","Ethnicity","Ethnicity","Disability","Disability","Disability","Disability","Disability","Disability","Disability","Disability","Disability","Disability","Disability","Disability","Disability","Disability","Disability","Disability","PFE","PFE","PFE","PFE","PFE","PFE","CIDK"),
+      Freq=0,
+      Replacement=c("Unsatisfactory","Borderline","Satisfactory","Excellent","Unsatisfactory","Borderline","Satisfactory","Excellent","Correct","Competent","Incorrect","Don't Know","Correct","Incorrect","Don't Know","Don't Know", "Don't Know","Needs Improvement","Not Competent","Competent","Needs Improvement","Not Competent", "Needs Improvement","Not Competent","Unsatisfactory","Borderline","Satisfactory","Excellent","Unsatisfactory","Borderline","Satisfactory","Excellent","Don't Know","Correct","Incorrect","Don't Know","Don't Know","Don't Know","Needs Improvement","Not Competent","Competent","Needs Improvement","Not Competent","Needs Improvement","Not Competent","Pass","Fail","Pass","Fail","Pass","Fail","Pass","Fail","Correct","Don't Know","Incorrect","Male","Female","Male","Female","Male","Female","Male","Female","Correct","Competent","White","White","Asian","Asian","Other","Other","Other","Other","Other","Other","No Known Disability","Specific Learning Difficulty","Other Disability","No Known Disability","Specific Learning Difficulty","Other Disability","No Known Disability","Specific Learning Difficulty","Other Disability","Specific Learning Difficulty","Specific Learning Difficulty","Other Disability","Other Disability","No Known Disability","No Known Disability","Other Disability","Pass","Fail","Excellent","Excellent","Excellent","Excellent","Incorrect"))
+    
+    Data.Scheme$Replacement<-as.character(Data.Scheme$Replacement) # to make sure Data.Scheme$Replacement is not factorised (if factorised, replacement of values is thrown by level numbers being used in some versions/settings of R)
+    Data.Scheme$Value<-as.character(Data.Scheme$Value) # ditto
+    
+    for(i in Data.Scheme$Value){Data.Scheme$Freq[Data.Scheme$Value==i]<-length(Data.Plot$variable[Data.Plot$variable==i])}
+    
+    # Look for any unknown values in the input Data (currently stored in Data.Plot$variable), and abort with warning if Unknown.Values>=1
+    
+    Data.ValuesCheck<-data.frame(Data=unique(Data.Plot$variable), Freq=0)
+    Data.ValuesCheck$Data<-as.character(Data.ValuesCheck$Data) # to clear any automatic factoring in some R builds/settings.
+    
+    for(i in unique(Data.ValuesCheck$Data)){Data.ValuesCheck$Freq[Data.ValuesCheck$Data==i]<-length(Data.Scheme$Value[Data.Scheme$Value==i])}
+    
+    Unknown.Values<-Data.ValuesCheck$Data[Data.ValuesCheck$Freq==0]
+    
+  }
+  
+  # Create dataframe to determine most likely scheme (the scheme which accounts for the highest number of values in Data, and accounts for at least 95% of them). If two schemes or none meet the criteria, levels are determined from Data. Otherwise levels and labels are set by values in Data.Scheme
+  
+  if(Checks.OK=="Yes"){
+    
+    Estimated.Scheme<-"Unknown" # Default to Estimated.Scheme=="Unknown" 
+    
+    if(length(Unknown.Values)==0){
+      
+      # Temp line to check code issue with CIDK/CNINC resulting in "Scheme not found".
+      # If you have nested conditionals which base based on evaluation an object, but the object doesn't exist 
+      # (e.g. Scheme is Scheme doesn't exist), it aborts the entire nested block... BUT DOESNT GIVE YOU AN ERROR MESSAGE.
+      # This is a work-around to create a dummy Scheme for it to evaluate outside the nested conditionals that follow
+      # (and hence avoid the abortive error); a proper fix would be to make each nested conditional dependent on 
+      # exists("Scheme")==TRUE, but I have other things to add before making it pretty lol.
+      Scheme<-"Unknown" # dummy work-around, see comments above
+    
+       # Return to normal script after work-around
+    
+      for(i in unique(Data.Scheme$Scheme)){
+        if(i==unique(Data.Scheme$Scheme)[1]){Data.Scheme.Determination<-data.frame(Scheme=character(),Freq=numeric())}
+        Temp<-data.frame(Scheme=i,Freq=sum(Data.Scheme$Freq[Data.Scheme$Scheme==i]))
+        Data.Scheme.Determination<-rbind(Data.Scheme.Determination,Temp)}
+
+      Data.Scheme.Determination$Perc<-100*(Data.Scheme.Determination$Freq/length(Data.Plot$variable))
+      
+      Estimated.Scheme<-as.character(Data.Scheme.Determination$Scheme[Data.Scheme.Determination$Freq==max(Data.Scheme.Determination$Freq) & Data.Scheme.Determination$Perc>=95.00])
+      
+      # Conditional to display warning if indeterminate scheme and no Force.Scheme statement.
+      
+      if(Force.Scheme!="USE" & Force.Scheme!="CIDK" & Force.Scheme!="CNINC"){
+        if(length(Estimated.Scheme)>1 | length(Estimated.Scheme)==0){
+          warning("Could not determine scheme. Using levels as they appear in Data")
+          Scheme<-"Unknown"
+        }}
+
+      # Nested conditionals to determine effect of Force.Scheme=="USE"
+      
+      if(Force.Scheme=="USE"){
+        ### add check here incase USE is being force by accident/inappropriately ###
+        Scheme<-Estimated.Scheme
+        if(Scheme=="UBSE"){
+          
+          Temp<-Data.Plot
+          for(i in unique(Temp$variable)){
+          Temp$variable[Temp$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="UBSE"]}
+          Temp$variable<-as.character(Temp$variable)
+          
+          if(length(Temp$variable[Temp$variable=="Borderline"])==0){
+          
+          Scheme<-"USE"
+          Scheme.Text<-(paste("Scheme overridden. Using: ",Scheme,sep=""))}
+          
+          else{if(length(Estimated.Scheme)==1){
+            Scheme<-Estimated.Scheme
+            Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))}}
+          
+        }else{if(length(Estimated.Scheme)==1){
+          Scheme<-Estimated.Scheme
+          Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))}}
+        
+      }else{
+       
+          if(length(Estimated.Scheme)==1){
+          Scheme<-Estimated.Scheme
+          Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))}}
+      
+      # Nested conditionals to determine effect of Force.Scheme="PF"
+      
+      if(Force.Scheme=="PF"){
+        ### add check here incase PF is being force by accident/inappropriately ###
+        Scheme<-Estimated.Scheme
+        if(Scheme=="PFE"){
+          
+          Temp<-Data.Plot
+          for(i in unique(Temp$variable)){
+          Temp$variable[Temp$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="PFE"]}
+          Temp$variable<-as.character(Temp$variable)
+          
+          if(length(Temp$variable[Temp$variable=="Excellent"])==0){
+          
+          Scheme<-"PF"
+          Scheme.Text<-(paste("Scheme overridden. Using: ",Scheme,sep=""))}
+          
+          else{if(length(Estimated.Scheme)==1){
+            Scheme<-Estimated.Scheme
+            Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))}}
+          
+        }else{if(length(Estimated.Scheme)==1){
+          Scheme<-Estimated.Scheme
+          Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))}}
+        
+      }else{
+       
+          if(length(Estimated.Scheme)==1 & Scheme!="USE"){
+          Scheme<-Estimated.Scheme
+          Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))}}
+      
+      # Nested conditionals to determine effect of Force.Scheme="UBS"
+      
+      if(Force.Scheme=="UBS"){
+        ### add check here incase PF is being force by accident/inappropriately ###
+        Scheme<-Estimated.Scheme
+        if(Scheme=="UBSE"){
+          
+          Temp<-Data.Plot
+          for(i in unique(Temp$variable)){
+          Temp$variable[Temp$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="UBSE"]}
+          Temp$variable<-as.character(Temp$variable)
+          
+          if(length(Temp$variable[Temp$variable=="Excellent"])==0){
+          
+          Scheme<-"UBS"
+          Scheme.Text<-(paste("Scheme overridden. Using: ",Scheme,sep=""))}
+          
+          else{if(length(Estimated.Scheme)==1){
+            Scheme<-Estimated.Scheme
+            Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))}}
+          
+        }else{if(length(Estimated.Scheme)==1){
+          Scheme<-Estimated.Scheme
+          Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))}}
+        
+      }else{
+       
+          if(length(Estimated.Scheme)==1 & Scheme!="USE" & Scheme!="PF"){
+          Scheme<-Estimated.Scheme
+          Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))}}
+      
+      # Conditionals for handling Force.Scheme=="CIDK"/"CNINC"
+      
+      if(Force.Scheme=="CIDK" | Force.Scheme=="CNINC"){
+        if(exists("Scheme")==FALSE){
+        Scheme<-Force.Scheme
+        Scheme.Text<-(paste("Scheme overridden. Using: ",Scheme,sep=""))}}
+      
+      if(Force.Scheme=="CIDK" | Force.Scheme=="CNINC"){
+        if(Scheme!="UBSE" & Scheme!="USE" & Scheme!="PF" & Scheme!="PFE" & Scheme!="CIDK" & Scheme!="CNINC" & Scheme!="UBS"){
+        Scheme<-Force.Scheme
+        Scheme.Text<-(paste("Scheme overridden. Using: ",Scheme,sep=""))}}
+      
+      if(Force.Scheme=="USE" | Force.Scheme=="PF" | Force.Scheme=="UBS"){
+        if(Estimated.Scheme[1]=="CIDK" | Estimated.Scheme[1]=="CNINC"){
+          Scheme<-Estimated.Scheme[1]
+          Scheme.Text<-(paste("Scheme determined: ",Scheme,sep=""))
+          if(length(Estimated.Scheme)>1|length(Estimated.Scheme)==0){
+          warning("IGNORE THE PREVIOUS WARNINGS. I was just having a think through the options and talking to myself. I still couldn't quite work out the scheme, so took a guess. If it's not what you wanted, please try adding Force.Scheme=\"CIDK\" or Force.Scheme=\"CNINC\" to the function call. Thank you.")}
+          }
+        }
+      
+      if(Scheme!="Unknown"){print(Scheme.Text)}
+      
+    } # Close Unknown.Values==0 conditional
+    
+    
+    if(length(Unknown.Values)>=1){
+      if(length(Unknown.Values)==1){warning(paste("Could not determine scheme - Unknown value in Data: ",toString(Unknown.Values),". Using levels as they appear in Data",sep=""))}
+      if(length(Unknown.Values)>1){warning(paste("Could not determine scheme - Unknown values in Data: ",toString(Unknown.Values),". Using levels as they appear in Data",sep=""))}
+      Scheme<-"Unknown"}  
+    
+    # Use Scheme to set xlab
+    
+    if(Scheme=="Unknown"){xlab.text<-"Unknown Scheme"}
+    if(Scheme=="UBSE"){xlab.text<-"Grade"}
+    if(Scheme=="CIDK"){xlab.text<-"Response"}
+    if(Scheme=="CNINC"){xlab.text<-"Grade"}
+    if(Scheme=="PFE" | Scheme=="PF"){xlab.text<-"Grade"}
+    if(Scheme=="USE"){xlab.text<-"Grade"}
+    if(Scheme=="Gender"){xlab.text<-"Gender"}
+    if(Scheme=="Ethnicity"){xlab.text<-"Ethnicity"}
+    if(Scheme=="Disability"){xlab.text<-"Disability"}
+    if(Scheme=="UBS"){xlab.text<-"Grade"}
+    
+    # Correct values in Data.Plot$variable to Data.Scheme$Replacement and factorise accordingly
+    
+    UBSE.Levels<-c("Unsatisfactory","Borderline","Satisfactory","Excellent")
+    CIDK.Levels<-c("Correct","Incorrect","Don't Know")
+    CNINC.Levels<-c("Competent","Needs Improvement","Not Competent")
+    PFE.Levels<-c("Excellent","Pass","Fail")
+    PF.Levels<-c("Pass","Fail")
+    USE.Levels<-c("Unsatisfactory","Satisfactory","Excellent")
+    Gender.Levels<-c("Female","Male")
+    Ethnicity.Levels<-unique(subset(Data.Scheme, Data.Scheme$Scheme=="Ethnicity")$Replacement)
+    Disability.Levels<-unique(subset(Data.Scheme, Data.Scheme$Scheme=="Disability")$Replacement)
+    UBS.Levels<-c("Unsatisfactory","Borderline","Satisfactory")
+    
+    if(Scheme=="Unknown"){
+      Data.Plot$variable<-factor(Data.Plot$variable)}
+    
+    if(Scheme=="UBSE"){
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="UBSE"]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=UBSE.Levels)}
+    
+    if(Scheme=="CIDK"){
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="CIDK"]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=CIDK.Levels)}
+    
+    if(Scheme=="CNINC"){
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="CNINC"]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=CNINC.Levels)}
+    
+    if(Scheme=="PFE"){
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="PFE"]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=PFE.Levels)}
+    
+    if(Scheme=="PF"){
+      Temp<-subset(Data.Scheme,Data.Scheme$Scheme=="PFE")
+      Temp<-subset(Temp,Temp$Replacement!="Excellent")
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Temp$Replacement[Temp$Value==i]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=PF.Levels)}
+    
+    if(Scheme=="USE"){
+      Temp<-subset(Data.Scheme,Data.Scheme$Scheme=="UBSE")
+      Temp<-subset(Temp,Temp$Replacement!="Borderline")
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Temp$Replacement[Temp$Value==i]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=USE.Levels)}
+    
+    if(Scheme=="UBS"){
+      Temp<-subset(Data.Scheme,Data.Scheme$Scheme=="UBSE")
+      Temp<-subset(Temp,Temp$Replacement!="Excellent")
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Temp$Replacement[Temp$Value==i]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=UBS.Levels)}
+    
+    if(Scheme=="Gender"){
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="Gender"]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=Gender.Levels)}
+    
+    if(Scheme=="Ethnicity"){
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="Ethnicity"]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=Ethnicity.Levels)}
+    
+    if(Scheme=="Disability"){
+      for(i in unique(Data.Plot$variable)){
+        Data.Plot$variable[Data.Plot$variable==i]<-Data.Scheme$Replacement[Data.Scheme$Value==i & Data.Scheme$Scheme=="Disability"]}
+      Data.Plot$variable<-factor(Data.Plot$variable, levels=Disability.Levels)}
+    
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Determine colours based on Scheme
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    if(Scheme=="Unknown"){Colours<-rep("darkblue",length(unique(Data.Plot$variable)))}
+    if(Scheme=="UBSE"){Colours<-c("darkred","darkorange","darkgreen","darkblue")}
+    if(Scheme=="USE"){Colours<-c("darkred","darkgreen","darkblue")}
+    if(Scheme=="CIDK"){Colours<-c("darkgreen","darkred","darkorange")}
+    if(Scheme=="CNINC"){Colours<-c("darkgreen","darkorange","darkred")}
+    if(Scheme=="PFE"){Colours<-c("darkblue","darkgreen","darkred")}
+    if(Scheme=="PF"){Colours<-c("darkgreen","darkred")}
+    if(Scheme=="Gender"){Colours<-c("#114477","#4477AA")}
+    if(Scheme=="Ethnicity"){Colours<-rep("darkblue",length(Ethnicity.Levels))}
+    if(Scheme=="Disability"){Colours<-rep("darkblue",length(Disability.Levels))}
+    if(Scheme=="UBS"){Colours<-c("darkred","darkorange","darkgreen")}
+    
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Custom ggplot theme - replace/update when changed
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    theme_psmd <- function(){
+      Text.Size<-10
+      Text.Basic <- element_text(size = Text.Size, colour = "black", face = "plain")
+      Text.Bold <- element_text(size = Text.Size, colour = "black", face = "bold")
+      Text.Title <- element_text(size = 1.1*Text.Size, colour = "black", face = "bold")
+      theme_bw() +
+        theme(
+          legend.key = element_blank(), 
+          strip.background = element_blank(), 
+          text = Text.Basic, 
+          plot.title = Text.Title, 
+          axis.title = Text.Bold, 
+          axis.text = Text.Basic, 
+          legend.title = Text.Bold, 
+          legend.text = Text.Basic,
+          panel.border = element_rect(fill=NA, colour="#D3D3D3"),
+          panel.grid.major = element_line(colour = "#D3D3D3"),
+          panel.grid.minor = element_line(colour = "#F5F5F5"),
+          axis.line.x = element_line(colour = "#000000"),
+          axis.line.y = element_line(colour = "#000000"))}
+    
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Create basic plot
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    if(Type=="Frequency"){
+      
+      # Create frequency table and determine frequencies; easier to do this in the same way as the percentage plot to maintain colours across missing categories than use geom_bar(stat="count") with conditional colour determination.   
+      Data.Frequencies<-data.frame(variable=c(unique(levels(Data.Plot$variable))), Frequency=0)
+      
+      for(i in Data.Frequencies$variable){
+        Data.Frequencies$Frequency[Data.Frequencies$variable==i]<-(length(Data.Plot$variable[Data.Plot$variable==i]))
+      }
+      
+      # Factorise according to Scheme
+      
+      if(Scheme=="UBSE"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=UBSE.Levels)}
+      if(Scheme=="CIDK"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=CIDK.Levels)}
+      if(Scheme=="CNINC"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=CNINC.Levels)}
+      if(Scheme=="PFE"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=PFE.Levels)}
+      if(Scheme=="PF"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=PF.Levels)}
+      if(Scheme=="USE"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=USE.Levels)}
+      if(Scheme=="Unknown"){Data.Frequencies$variable<-factor(Data.Frequencies$variable)}
+      if(Scheme=="Gender"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=Gender.Levels)}
+      if(Scheme=="Ethnicity"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=Ethnicity.Levels)}
+      if(Scheme=="Disability"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=Disability.Levels)}
+      if(Scheme=="UBS"){Data.Frequencies$variable<-factor(Data.Frequencies$variable, levels=UBS.Levels)}
+      
+      # Create Plot
+      
+      Plot.1<-ggplot(data=Data.Frequencies, aes(x=variable, y=Frequency, fill=variable)) + 
+        geom_bar(stat="identity") + 
+        scale_fill_manual(values=Colours) +  
+        guides(fill=FALSE) +  
+        ylab("Frequency") +  
+        xlab(xlab.text) +
+        scale_x_discrete(drop=FALSE) +
+        theme_psmd()}
+    
+    if(Type=="Percentage"){
+      
+      # Calculate Percentages of each level
+      
+      Data.Percentage<-data.frame(variable=c(unique(levels(Data.Plot$variable))), Percentage=0)
+      
+      for(i in Data.Percentage$variable){
+        Data.Percentage$Percentage[Data.Percentage$variable==i]<-100*(length(Data.Plot$variable[Data.Plot$variable==i])/length(Data.Plot$variable))
+      }
+      
+      # Factorise according to Scheme
+      
+      if(Scheme=="UBSE"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=UBSE.Levels)}
+      if(Scheme=="CIDK"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=CIDK.Levels)}
+      if(Scheme=="CNINC"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=CNINC.Levels)}
+      if(Scheme=="USE"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=USE.Levels)}
+      if(Scheme=="Unknown"){Data.Percentage$variable<-factor(Data.Percentage$variable)}
+      if(Scheme=="PFE"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=PFE.Levels)}
+      if(Scheme=="PF"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=PF.Levels)}
+      if(Scheme=="Gender"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=Gender.Levels)}
+      if(Scheme=="Ethnicity"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=Ethnicity.Levels)}
+      if(Scheme=="Disability"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=Disability.Levels)}
+      if(Scheme=="UBS"){Data.Percentage$variable<-factor(Data.Percentage$variable, levels=UBS.Levels)}
+      
+      # Create Plot
+      
+      Plot.1<-ggplot(data=Data.Percentage, aes(x=variable, y=Percentage, fill=variable)) +
+        geom_bar(stat="identity") +
+        scale_fill_manual(values=Colours) +
+        guides(fill=FALSE) +
+        ylim(0,100) +
+        ylab("Percentage") +
+        xlab(xlab.text) +
+        scale_x_discrete(drop=FALSE) +
+        theme_psmd()}
+    
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Check for lack of-B grades and question if UBSE is correct
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    if(Scheme=="UBSE"){
+      if(length(Data.Plot$variable[Data.Plot$variable=="Borderline"])==0){
+        warning("We determined the scheme was UBSE but detected there were no Borderline grades in the data. If this is incorrect, and the scheme to use is USE, please add the argument Force.Scheme=\"USE\" to the function call. Thank you.")
+      }}
+    
+    if(Scheme=="PFE"){
+      if(length(Data.Plot$variable[Data.Plot$variable=="Excellent"])==0){
+        warning("We determined the scheme was PFE but detected there were no Excellent grades in the data. If this is incorrect, and the scheme to use is PF, please add the argument Force.Scheme=\"PF\" to the function call. Thank you.")
+      }}
+    
+    if(length(Estimated.Scheme)==2 & Scheme!="CIDK" & Scheme!="CNINC"){
+      warning("We were unable to determine whether the scheme was CIDK or CNINC. Please add the argument Force.Scheme=\"CIDK\" or Force.Scheme=\"CNINC\" to the function call as appropriate. Thank you.")
+    }
+    
+    if(Scheme=="UBSE"){
+      if(length(Data.Plot$variable[Data.Plot$variable=="Excellent"])==0){
+        warning("We determined the scheme was UBSE but detected there were no Excellent grades in the data. If this is incorrect, and the scheme to use is USB, please add the argument Force.Scheme=\"UBS\" to the function call. Thank you.")
+      }}
+    
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # Returns
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    if(Checks.OK=="Yes"){return(Plot.1)}
+    
+  } # Close inputs check ok conditional
+} # Close function
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#### fnDetermineScoreColumns - last updated 250417 ####
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# Function designed to list columns in a datframe which coulld be scores.
+
+# Inputs
+#
+# Dataframe Single dataframe with at least one column
+#        
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+fnDetermineScoreColumns<-function(Dataframe){
+
+# Rename argument to something shorter  
+
+  Data<-Dataframe  
+
+# Check input type is a dataframe, warning if FALSE, continue if TRUE.
+
+if(is.data.frame(Data)==FALSE){
+  
+warning(paste("Dataframe argument should be a data.frame, even if it only has one column"))
+  
+  }else{
+    
+#Remove any rows with NA    
+
+    Data<-Data[complete.cases(Data),]
+
+# Tabulate criteria
+
+for(i in colnames(Data)){
+  
+  # Create empty data.frame (Table.ColDetails)
+  
+  if(i==colnames(Data)[1]){Table.ColDetails<-data.frame(
+    ColName=character(),
+    Numeric=character(),
+    Pos.Percent=character(),
+    Reasonable.Range=character(),
+    Not.Response=character(),
+    Not.Stage=character(),
+    Not.Assessor.ID=character()
+    )}
+  
+  # Determine row-entry for i
+  
+  Temp<-data.frame(
+    ColName=i,
+    Numeric=is.numeric(Data[[i]]),
+    Pos.Percent=ifelse(max(Data[[i]])<=100,TRUE,FALSE),
+    Reasonable.Range=ifelse(is.numeric(Data[[i]])==TRUE,
+      ifelse((max(Data[[i]])-min(Data[[i]]))==length(Data[[i]])-1,FALSE,TRUE),FALSE),
+    Not.Response=ifelse(is.numeric(Data[[i]])==TRUE,
+      ifelse(length(subset(Data[[i]],Data[[i]]==-0.25 | Data[[i]]==0 | Data[[i]]==1))==length(Data[[i]]),FALSE,TRUE),FALSE),
+    Not.Stage=ifelse(max(Data[[i]])>5,TRUE,FALSE), # Also excludes element scores if max<=5
+    Not.Assessor.ID=ifelse(max(Data[[i]])>100,FALSE,TRUE)
+    )
+  
+  # Add to Table.ColDetails
+ 
+   Table.ColDetails<-rbind(Table.ColDetails,Temp)
+  
+  # Identify Possible Score column(s)
+   
+  if(i==colnames(Data)[length(colnames(Data))]){
+    Table.ColDetails$Pos.Score<-ifelse((
+      Table.ColDetails$Numeric==TRUE & 
+      #Table.ColDetails$Pos.Percent==TRUE & 
+      Table.ColDetails$Reasonable.Range==TRUE & 
+      Table.ColDetails$Not.Response==TRUE & 
+      Table.ColDetails$Not.Stage==TRUE & 
+      Table.ColDetails$Not.Assessor.ID==TRUE),TRUE,FALSE)
+  }}
+
+# List columns which could be scores
+    
+Possible.Score.Columns<-Table.ColDetails$ColName[Table.ColDetails$Pos.Score==TRUE] 
+
+# Look for column headers containing 'Score', 'Final', 'Raw', and 'Percentage'  variants
+
+Score.Variants<-c("Score","score")
+for(i in Score.Variants){
+if(i==Score.Variants[1]){Score<-character()}
+  Temp<-colnames(Data)[grep(i,colnames(Data))]
+  Score<-c(Score,Temp)
+if(i==Score.Variants[length(Score.Variants)]){Score<-unique(Score)}}
+
+Final.Variants<-c("Final","final")
+for(i in Final.Variants){
+if(i==Final.Variants[1]){Final<-character()}
+  Temp<-colnames(Data)[grep(i,colnames(Data))]
+  Final<-c(Final,Temp)
+if(i==Final.Variants[length(Final.Variants)]){Final<-unique(Final)}}
+
+Raw.Variants<-c("Raw","raw")
+for(i in Raw.Variants){
+if(i==Raw.Variants[1]){Raw<-character()}
+  Temp<-colnames(Data)[grep(i,colnames(Data))]
+  Raw<-c(Raw,Temp)
+if(i==Raw.Variants[length(Raw.Variants)]){Raw<-unique(Raw)}}
+
+Percentage.Variants<-c("Percentage","Perc","Percent")
+for(i in Percentage.Variants){
+if(i==Percentage.Variants[1]){Percentage<-character()}
+  Temp<-colnames(Data)[grep(i,colnames(Data))]
+  Percentage<-c(Percentage,Temp)
+if(i==Percentage.Variants[length(Percentage.Variants)]){Percentage<-unique(Percentage)}}
+
+# Edit if no columns found
+
+if(length(Possible.Score.Columns)==0){Final.Score<-"No columns are likely to contain scores."}
+if(length(Scores)==0){Scores<-"No columns headers include 'Score'."}
+if(length(Final)==0){Final<-"No possibilities found"}
+if(length(Raw)==0){Raw<-"No possibilities found"}
+if(length(Percentage)==0){Percentage<-"No possibilities found"}
+
+# Compile
+
+Conclusions<-list()
+Conclusions[["Possibilities"]]<-Possible.Score.Columns
+Conclusions[["Scores"]]<-Scores
+Conclusions[["Final Scores"]]<-Final
+Conclusions[["Raw Scores"]]<-Raw
+Conclusions[["Percent Scores"]]<-Percentage
+
+# Determin most likely candidate (prioritises percentage scores, then raw, then final)
+
+if(length(Conclusions[["Percent Scores"]])==1 & Conclusions[["Percent Scores"]]!="No possibilities found"){
+  Most.Likely<-Conclusions[["Percent Scores"]]}else{
+    if(length(Conclusions[["Raw Scores"]])==1& Conclusions[["Raw Scores"]]!="No possibilities found"){
+      Most.Likely<-Conclusions[["Raw Scores"]]}else{
+        if(length(Conclusions[["Final Scores"]])==1& Conclusions[["Final Scores"]]!="No possibilities found"){
+          Most.Likely<-Conclusions[["Final Scores"]]}else{
+            Most.Likely<-"No idea"}}}
+
+Conclusions[["Most Likely"]]<-Most.Likely
+
+# Return list, Possible.Score.Columns
+
+return(Conclusions)  
+
+} # Close data.frame checking conditional  
+} # Close function 
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+##
+##
+##
+##
+##
+##
+####
+###
+##
+#
