@@ -1,5 +1,5 @@
 
-# Script containing all generic functions for {PSMD.Psychometrics} - DZ 240417
+# Script containing all generic functions for {psychometricsPSMD} - DZ 240417/300517
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,7 +120,7 @@ theme_psmd <- function(){
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# Function to automate updating PSMD.Psychometrics package
+# Function to automate updating psychometricsPSMD package
 
 # DZ notes to self:
 # The argument character.only = TRUE works for library(), but possibly not for install.packages
@@ -132,7 +132,7 @@ theme_psmd <- function(){
 
 fnUpdate<-function(PackageName="psychometricsPSMD", Reinstall=FALSE){
   
-  # Defaults to check for PSMD.Psychometrics but can be usesd for other pakages by changing the PackageName argument
+  # Defaults to check for psychometricsPSMD but can be usesd for other pakages by changing the PackageName argument
   
   # Set check defaults
 
