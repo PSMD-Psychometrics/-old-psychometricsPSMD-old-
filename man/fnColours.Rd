@@ -42,6 +42,7 @@ Dr Daniel Zahra, e: psychometrics@plymouth.ac.uk
 \note{
 DZ170517: Any values entered in DropValue not being used in the scheme will be ignored.
   Also, no utility to drop specific cohorts from Cohort/Historic schemes.
+  Add switch to supress comments.
 }
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
@@ -50,9 +51,11 @@ DZ170517: Any values entered in DropValue not being used in the scheme will be i
 }
 \examples{
 # Warnings for missing critical inputs
+
 fnColours()
   
 # Details of recognised schemes, their palettes, and hex codes
+
 fnColours(Info="Y")
 
 # Palettes for specific schemes
@@ -60,6 +63,10 @@ fnColours(Info="Y")
 fnColours(DataOrScheme = "UBSE")
 fnColours(DataOrScheme = "UBLSHSE")
 fnColours(DataOrScheme = "Assessor")
+
+# Can reverse the order of the palette
+
+rev(fnColours("PF"))
 
 # Palettes for data, including variation in input (within reason)
 
@@ -71,6 +78,12 @@ fnColours(DataOrScheme = c("U","E","Excellent","HS","HS","LS","borderline","HS")
 fnColours(DataOrScheme = "UBSE", DropValue = c("B","S"))
 fnColours(DataOrScheme = dataExample$Grade.UBSE, DropValue = "B")
 fnColours(DataOrScheme = c(1,2,3,5,1,2,2,5,3), DropValue = c(4))
+
+# Recommend using fnColours() to create objects of hexcodes for use later
+# The reduces repetition of fnColours() comments.
+# (until an option is included to supress them)
+
+StageColours<-fnColours("Stage")
 
 # Palette derived within plot functions (examples requires ggplot2)
 
