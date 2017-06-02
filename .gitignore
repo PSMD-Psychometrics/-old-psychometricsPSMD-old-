@@ -15,7 +15,7 @@
 /*.Rcheck/
 
 # RStudio files
-# psychometricsPSMD.Rproj
+psychometricsPSMD.Rproj
 .Rproj.user/
 .Rbuildignore
 
