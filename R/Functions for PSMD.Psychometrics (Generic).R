@@ -131,7 +131,6 @@ theme_psmd <- function(){
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 fnUpdate<-function(PackageName="psychometricsPSMD", Reinstall=FALSE){
   
   # Defaults to check for psychometricsPSMD but can be usesd for other pakages by changing the PackageName argument
@@ -225,6 +224,8 @@ fnUpdate<-function(PackageName="psychometricsPSMD", Reinstall=FALSE){
 # Values specified in DropValue which are not recognised will have no effect
 
 # Notes
+#
+# Add (or set as default) suppression of comments; so the theme chosen etc isn't repeated if used within a loop etc?
 #
 # Currently, the function adds 'Colour.Palette' to the global environment, and returns Colour.Palette
 # So it can be used by itself to create an object for use later without the need to assign it,
