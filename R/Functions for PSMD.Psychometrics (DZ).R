@@ -1,5 +1,5 @@
 
-# Script containing all functions for {PSMD.Psychometrics}
+# Script containing all functions for {psychometricsPSMD} maintained by DZ
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
