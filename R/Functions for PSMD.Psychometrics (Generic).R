@@ -1,5 +1,7 @@
 
-# Script containing all generic functions for {psychometricsPSMD} - DZ 240417/300517
+# Script containing all generic functions for {psychometricsPSMD}
+# Created: DZ 240417
+# Last modified: DZ 040617
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
