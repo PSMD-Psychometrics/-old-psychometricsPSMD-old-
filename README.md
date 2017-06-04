@@ -1,3 +1,4 @@
 # psychometricsPSMD
 Psychometrics PSMD Package (Repository for Git-Syncing)
-R-Package of functions useful to and/or created by PSMD Psychometrics
+
+A collection of functions used by and useful to the PSMD Psychometrics Team
