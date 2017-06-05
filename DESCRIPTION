@@ -1,4 +1,3 @@
-
 Package: psychometricsPSMD
 Type: Package
 Title: A collection of functions used by and useful to the PSMD Psychometrics Team
@@ -7,6 +6,6 @@ Author: PSMD Psychometrics Team
 Maintainer: Dr Daniel Zahra <psychometrics@plymouth.ac.uk>
 Description: A collection of functions used by and useful to the PSMD Psychometrics Team. Package also contains an example dataset, Data.Example.
 License: Currently not under license. Consider GPL-3 or MIT.
-Imports: ggplot2 (>= 2.1.0),
-    xtable
+Imports: ggplot2,
+    googleVis
 LazyData: false
