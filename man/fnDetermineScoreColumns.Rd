@@ -5,7 +5,7 @@
 %% ~~function to do ... ~~
 }
 \description{
-fnDetermineScoreColumns. is designed to determine which column or columns in a data frame contain (numeric) scores. It operates based on a series of conditionals which evaluate aspects such as whether the variable is numeric, whether the values have a range typical of scoring schemes, or have ranges narrower or broader than scoring schemes used in PSMD.  
+fnDetermineScoreColumns is designed to determine which column or columns in a data frame contain (numeric) scores. It operates based on a series of conditionals which evaluate aspects such as whether the variable is numeric, whether the values have a range typical of scoring schemes, or have ranges narrower or broader than scoring schemes used in PSMD.  
 
 }
 \usage{
