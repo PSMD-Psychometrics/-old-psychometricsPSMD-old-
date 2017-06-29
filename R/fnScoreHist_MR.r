@@ -13,13 +13,13 @@
 	# ylab   Label for the y axis
 	# addBox   If TRUE (the default) adds a boxplot with mean point above the histogram
 	# pcScore  If TRUE changes the x axis label from "Score" to "Score (%)"
-	# PACKAGE REQUIREMENTS
-	# Needs psychometricsPSMD and ggplot2
 ################################################
-if (!require("ggplot2")) { install.packages("ggplot2", dependencies = TRUE) }
-library("ggplot2")
-if (!require("psychometricsPSMD")) { install_github("PSMD-Psychometrics/psychometricsPSMD", force=TRUE) }
-library("psychometricsPSMD")
+# PACKAGE REQUIREMENTS
+# Needs psychometricsPSMD and ggplot2
+# if (!require("ggplot2")) { install.packages("ggplot2", dependencies = TRUE) }
+# library("ggplot2")
+# if (!require("psychometricsPSMD")) { install_github("PSMD-Psychometrics/psychometricsPSMD", force=TRUE) }
+# library("psychometricsPSMD")
 #######
 fnScoreHist<-function(x,lo=0,hi=100,gradeScheme="",gradeBounds=c(),main="",ylab="Frequency (N students)",addBox=TRUE,pcScore=TRUE){
 	xdf<-as.data.frame(x)
