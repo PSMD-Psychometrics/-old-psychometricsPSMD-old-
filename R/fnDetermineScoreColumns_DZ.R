@@ -28,6 +28,9 @@
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+#Dataframe<-dataExample
+#fnDetermineScoreColumns(dataExample)
+
 fnDetermineScoreColumns<-function(Dataframe){
 
 # Rename argument to something shorter  
@@ -67,13 +70,16 @@ for(i in colnames(Data)){
   Temp<-data.frame(
     ColName=i,
     Numeric=is.numeric(Data[[i]]),
-    Pos.Percent=ifelse(max(Data[[i]])<=100,TRUE,FALSE),
+    Pos.Percent=ifelse(is.numeric(Data[[i]])==TRUE,
+                       ifelse(max(Data[[i]])<=100,TRUE,FALSE),FALSE),
     Reasonable.Range=ifelse(is.numeric(Data[[i]])==TRUE,
       ifelse((max(Data[[i]])-min(Data[[i]]))==length(Data[[i]])-1,FALSE,TRUE),FALSE),
     Not.Response=ifelse(is.numeric(Data[[i]])==TRUE,
       ifelse(length(subset(Data[[i]],Data[[i]]==-0.25 | Data[[i]]==0 | Data[[i]]==1))==length(Data[[i]]),FALSE,TRUE),FALSE),
-    Not.Stage=ifelse(max(Data[[i]])>5,TRUE,FALSE), # Also excludes element scores if max<=5
-    Not.Assessor.ID=ifelse(max(Data[[i]])>100,FALSE,TRUE)
+    Not.Stage=ifelse(is.numeric(Data[[i]])==TRUE,
+                     ifelse(max(Data[[i]])>5,TRUE,FALSE),FALSE), # Also excludes element scores if max<=5
+    Not.Assessor.ID=ifelse(is.numeric(Data[[i]])==TRUE,
+                           ifelse(max(Data[[i]])>100,FALSE,TRUE),FALSE)
     )
   
   # Add to Table.ColDetails
@@ -129,7 +135,7 @@ if(i==Percentage.Variants[length(Percentage.Variants)]){Percentage<-unique(Perce
 # Edit if no columns found
 
 if(length(Possible.Score.Columns)==0){Final.Score<-"No columns are likely to contain scores."}
-if(length(Scores)==0){Scores<-"No columns headers include 'Score'."}
+if(length(Score)==0){Score<-"No columns headers include 'Score'."}
 if(length(Final)==0){Final<-"No possibilities found"}
 if(length(Raw)==0){Raw<-"No possibilities found"}
 if(length(Percentage)==0){Percentage<-"No possibilities found"}
@@ -138,7 +144,7 @@ if(length(Percentage)==0){Percentage<-"No possibilities found"}
 
 Conclusions<-list()
 Conclusions[["Possibilities"]]<-Possible.Score.Columns
-Conclusions[["Scores"]]<-Scores
+Conclusions[["Scores"]]<-Score
 Conclusions[["Final Scores"]]<-Final
 Conclusions[["Raw Scores"]]<-Raw
 Conclusions[["Percent Scores"]]<-Percentage
