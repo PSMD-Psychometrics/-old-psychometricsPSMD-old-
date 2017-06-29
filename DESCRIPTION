@@ -1,7 +1,7 @@
 Package: psychometricsPSMD
 Type: Package
 Title: A collection of functions used by and useful to the PSMD Psychometrics Team
-Version: 0.1.1
+Version: 0.1.100
 Author: PSMD Psychometrics Team
 Maintainer: Dr Daniel Zahra <psychometrics@plymouth.ac.uk>
 Description: A collection of functions used by and useful to the PSMD Psychometrics Team. Package also contains an example dataset, Data.Example.
