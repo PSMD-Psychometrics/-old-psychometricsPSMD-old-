@@ -20,14 +20,14 @@ fnScoreHist(x,lo=0,hi=100,gradeScheme="",gradeBounds=c(),main="",ylab="Frequency
 A vector of assessment scores (usually percentages but may exceed 100 or be negative).      
 }
   \item{lo}{
-Minimum value for plotting the x axis
+Minimum value for plotting the x axis, best given as an appropriate multiple of 10 because the axis labels are spaced in tens. If min(x)<lo then lo is adjusted downwards (in multiples of 10)
 }
   \item{hi}{
-Maximum value for plotting the x axis
+Maximum value for plotting the x axis, If max(x)>hi then hi is adjusted upwards (in multiples of 10)
 }
   \item{gradeScheme}{
 A character string giving the first letter of the grades, ordered from lowest to highest. e.g. "UBSE" or "FP". Letters other than U, B, S, E, F or P will be displayed but not shaded.
-If not specified then the background will be unshaded
+If gradeScheme is not specified then the background will be unshaded
 }
 
   \item{gradeBounds}{
@@ -48,7 +48,7 @@ If TRUE (the default) adds a boxplot with mean point above the histogram.
 }
 
   \item{pcScore}{
-If TRUE changes the x axis label from "Score" to "Score (%)".
+If TRUE changes the x axis label from "Score" to "Score (\%)".
 }
 }
 \details{
