@@ -1,3 +1,0 @@
-# testDZ
-
-# Cogito Ergo Sum
