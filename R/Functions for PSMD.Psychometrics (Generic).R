@@ -241,6 +241,8 @@ fnUpdate<-function(PackageName="psychometricsPSMD", Reinstall=FALSE){
 
 fnColours<-function(DataOrScheme="Missing", DropValue="None", Info="N"){
 
+options(stringsAsFactors = FALSE) # if stringsAsFactors=TRUE then the formatting of the variables breaks this function, so setting it to FALSE before starting. This only affects the function evironemnt, not the global one.
+  
 # Remove any factorisation from inputs
 DataOrScheme<-as.character(DataOrScheme)
 DropValue<-as.character(DropValue)
