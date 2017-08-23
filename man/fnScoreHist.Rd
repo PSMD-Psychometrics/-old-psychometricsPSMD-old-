@@ -48,7 +48,7 @@ If TRUE (the default) adds a boxplot with mean point above the histogram.
 }
 
   \item{pcScore}{
-If TRUE changes the x axis label from "Score" to "Score (\%)".
+If TRUE (the default) changes the x axis label from "Score" to "Score (\%)".
 }
 }
 \details{
